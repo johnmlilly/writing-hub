@@ -17,8 +17,16 @@ pnpm-debug.log*
 .env
 .env.production
 
+# local better-auth sqlite db
+auth.db
+
 # macOS-specific files
 .DS_Store
 
 # jetbrains setting folder
 .idea/
+
+#Claude
+.claude
+# Local Netlify folder
+.netlify

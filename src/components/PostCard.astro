@@ -1,0 +1,20 @@
+---
+import type { PostWithStatus } from '../lib/db';
+
+interface Props {
+	post: PostWithStatus;
+}
+
+const { post } = Astro.props;
+---
+
+<a
+	href={`/edit/${post.id}`}
+	class="block border border-neutral-800 rounded-lg p-4 hover:border-neutral-700 transition"
+>
+	<h3 class="text-sm font-medium text-neutral-100">{post.title}</h3>
+	<p class="text-xs text-neutral-500 mt-1">
+		{post.status} · {post.destination}
+		{post.tags.length > 0 && <span> · {post.tags.join(', ')}</span>}
+	</p>
+</a>

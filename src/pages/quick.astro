@@ -1,0 +1,31 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Quick capture — Writing Hub">
+	<div class="mx-auto max-w-lg">
+		<h1 class="text-lg font-semibold text-neutral-100">Quick capture</h1>
+		<form method="POST" action="/api/quick" class="mt-6 flex flex-col gap-4">
+			<input
+				type="text"
+				name="title"
+				required
+				placeholder="What's the idea?"
+				autofocus
+				class="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-neutral-100 placeholder:text-neutral-600 focus:border-neutral-600 focus:outline-none"
+			/>
+			<textarea
+				name="content"
+				rows="4"
+				placeholder="Optional notes…"
+				class="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-600 focus:border-neutral-600 focus:outline-none"
+			></textarea>
+			<button
+				type="submit"
+				class="rounded-lg bg-neutral-100 px-3 py-2 text-sm font-medium text-neutral-950 hover:bg-white transition"
+			>
+				Capture
+			</button>
+		</form>
+	</div>
+</Layout>

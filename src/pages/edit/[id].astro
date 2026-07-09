@@ -1,0 +1,57 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PostForm from '../../components/PostForm.astro';
+import { getPost, listStatuses, updatePost } from '../../lib/db';
+import { parsePostForm } from '../../lib/forms';
+
+const id = Number(Astro.params.id);
+if (!Number.isInteger(id) || id < 1) {
+	return Astro.redirect('/');
+}
+
+let error: string | null = null;
+let saved = false;
+
+if (Astro.request.method === 'POST') {
+	const parsed = parsePostForm(await Astro.request.formData());
+	if ('error' in parsed) {
+		error = parsed.error;
+	} else {
+		await updatePost(id, parsed);
+		saved = true;
+	}
+}
+
+const [post, statuses] = await Promise.all([getPost(id), listStatuses()]);
+if (!post) {
+	return Astro.redirect('/');
+}
+---
+
+<Layout title={`Edit: ${post.title} — Writing Hub`}>
+	<div class="mx-auto max-w-2xl">
+		<h1 class="mb-6 text-lg font-semibold text-neutral-100">Edit post</h1>
+		{error && <p class="mb-4 text-sm text-red-400">{error}</p>}
+		{saved && <p class="mb-4 text-sm text-green-400">Saved.</p>}
+		<PostForm statuses={statuses} post={post} submitLabel="Save">
+			<button
+				slot="actions"
+				type="button"
+				id="delete-post"
+				data-id={post.id}
+				class="ml-auto text-sm text-red-500 hover:text-red-400 transition"
+			>
+				Delete
+			</button>
+		</PostForm>
+	</div>
+</Layout>
+
+<script>
+	document.getElementById('delete-post')?.addEventListener('click', async (e) => {
+		const id = (e.currentTarget as HTMLButtonElement).dataset.id;
+		if (!confirm('Delete this post? This cannot be undone.')) return;
+		const res = await fetch(`/api/posts/${id}`, { method: 'DELETE' });
+		if (res.ok) window.location.href = '/';
+	});
+</script>

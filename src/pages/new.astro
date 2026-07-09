@@ -1,0 +1,28 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PostForm from '../components/PostForm.astro';
+import { createPost, listStatuses } from '../lib/db';
+import { parsePostForm } from '../lib/forms';
+
+let error: string | null = null;
+
+if (Astro.request.method === 'POST') {
+	const parsed = parsePostForm(await Astro.request.formData());
+	if ('error' in parsed) {
+		error = parsed.error;
+	} else {
+		const id = await createPost(parsed);
+		return Astro.redirect(`/edit/${id}`, 303);
+	}
+}
+
+const statuses = await listStatuses();
+---
+
+<Layout title="New post — Writing Hub">
+	<div class="mx-auto max-w-2xl">
+		<h1 class="mb-6 text-lg font-semibold text-neutral-100">New post</h1>
+		{error && <p class="mb-4 text-sm text-red-400">{error}</p>}
+		<PostForm statuses={statuses} submitLabel="Create" />
+	</div>
+</Layout>

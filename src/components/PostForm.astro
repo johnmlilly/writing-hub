@@ -1,0 +1,82 @@
+---
+import MarkdownEditor from './MarkdownEditor.tsx';
+import { DESTINATIONS } from '../lib/constants';
+import type { PostWithStatus } from '../lib/db';
+
+interface Props {
+	statuses: { id: number; name: string }[];
+	post?: PostWithStatus;
+	submitLabel: string;
+}
+
+const { statuses, post, submitLabel } = Astro.props;
+---
+
+<form method="POST" class="flex flex-col gap-4">
+	<input
+		type="text"
+		name="title"
+		required
+		placeholder="Title"
+		value={post?.title ?? ''}
+		class="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-neutral-100 placeholder:text-neutral-600 focus:border-neutral-600 focus:outline-none"
+	/>
+
+	<div class="flex flex-wrap gap-4">
+		<label class="flex flex-col gap-1 text-sm text-neutral-400">
+			Status
+			<select
+				name="statusId"
+				class="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-neutral-100 focus:border-neutral-600 focus:outline-none"
+			>
+				{
+					statuses.map((s) => (
+						<option value={s.id} selected={post?.statusId === s.id}>
+							{s.name}
+						</option>
+					))
+				}
+			</select>
+		</label>
+
+		<label class="flex flex-col gap-1 text-sm text-neutral-400">
+			Destination
+			<select
+				name="destination"
+				class="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-neutral-100 focus:border-neutral-600 focus:outline-none"
+			>
+				{
+					DESTINATIONS.map((d) => (
+						<option value={d} selected={(post?.destination ?? 'personal') === d}>
+							{d}
+						</option>
+					))
+				}
+			</select>
+		</label>
+
+		<label class="flex grow flex-col gap-1 text-sm text-neutral-400">
+			Tags <span class="text-neutral-600">(comma-separated)</span>
+			<input
+				type="text"
+				name="tags"
+				value={post?.tags.join(', ') ?? ''}
+				placeholder="idea, essay"
+				class="rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-neutral-100 placeholder:text-neutral-600 focus:border-neutral-600 focus:outline-none"
+			/>
+		</label>
+	</div>
+
+	<MarkdownEditor client:only="react" name="content" initialValue={post?.content ?? ''} />
+
+	<div class="flex items-center gap-3">
+		<button
+			type="submit"
+			class="rounded-lg bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-950 hover:bg-white transition"
+		>
+			{submitLabel}
+		</button>
+		<a href="/" class="text-sm text-neutral-500 hover:text-neutral-200 transition">Cancel</a>
+		<slot name="actions" />
+	</div>
+</form>

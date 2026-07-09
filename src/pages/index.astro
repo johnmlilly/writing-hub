@@ -1,11 +1,87 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
+import PostCard from '../components/PostCard.astro';
+import SearchBox from '../components/SearchBox.tsx';
+import { listPosts, listStatuses } from '../lib/db';
+import { DESTINATIONS, STATUS_ORDER } from '../lib/constants';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const destination = Astro.url.searchParams.get('destination') ?? undefined;
+const tag = Astro.url.searchParams.get('tag') ?? undefined;
+
+const [posts, statuses] = await Promise.all([listPosts({ destination, tag }), listStatuses()]);
+
+const statusRank = new Map(STATUS_ORDER.map((name, i) => [name, i]));
+const grouped = statuses
+	.slice()
+	.sort((a, b) => (statusRank.get(a.name as never) ?? 99) - (statusRank.get(b.name as never) ?? 99))
+	.map((s) => ({ status: s, posts: posts.filter((p) => p.statusId === s.id) }));
+
+const allTags = [...new Set(posts.flatMap((p) => p.tags))].sort();
 ---
 
 <Layout>
-	<Welcome />
+	<div class="flex flex-col gap-8">
+		<SearchBox client:only="react" />
+
+		<div class="flex flex-wrap items-center gap-2 text-xs">
+			<a
+				href="/"
+				class={`rounded-full border px-3 py-1 transition ${
+					!destination
+						? 'border-neutral-600 text-neutral-100'
+						: 'border-neutral-800 text-neutral-500 hover:text-neutral-200'
+				}`}
+			>
+				all
+			</a>
+			{
+				DESTINATIONS.map((d) => (
+					<a
+						href={`/?destination=${d}`}
+						class={`rounded-full border px-3 py-1 transition ${
+							destination === d
+								? 'border-neutral-600 text-neutral-100'
+								: 'border-neutral-800 text-neutral-500 hover:text-neutral-200'
+						}`}
+					>
+						{d}
+					</a>
+				))
+			}
+			{
+				allTags.length > 0 && (
+					<span class="ml-2 flex flex-wrap gap-2 text-neutral-600">
+						{allTags.map((t) => (
+							<a
+								href={`/?tag=${encodeURIComponent(t)}`}
+								class={tag === t ? 'text-neutral-100' : 'hover:text-neutral-300'}
+							>
+								#{t}
+							</a>
+						))}
+					</span>
+				)
+			}
+		</div>
+
+		{
+			grouped.map(({ status, posts }) => (
+				<section>
+					<h2 class="mb-3 text-xs font-medium uppercase tracking-wider text-neutral-500">
+						{status.name}
+						<span class="ml-1 text-neutral-700">{posts.length}</span>
+					</h2>
+					{posts.length === 0 ? (
+						<p class="text-sm text-neutral-700">Nothing here.</p>
+					) : (
+						<div class="grid gap-3 sm:grid-cols-2">
+							{posts.map((post) => (
+								<PostCard post={post} />
+							))}
+						</div>
+					)}
+				</section>
+			))
+		}
+	</div>
 </Layout>

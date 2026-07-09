@@ -1,3 +1,14 @@
+---
+import '../styles/global.css';
+
+interface Props {
+	title?: string;
+}
+
+const { title = 'Writing Hub' } = Astro.props;
+const isLoggedIn = Astro.locals.user != null;
+---
+
 <!doctype html>
 <html lang="en">
 	<head>
@@ -6,18 +17,44 @@
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+		<title>{title}</title>
 	</head>
-	<body>
-		<slot />
+	<body class="bg-neutral-950 text-neutral-200 font-sans min-h-screen">
+		<header class="border-b border-neutral-800">
+			<nav class="mx-auto max-w-4xl flex items-center gap-6 px-4 py-3 text-sm">
+				<a href="/" class="font-semibold text-neutral-100">Writing Hub</a>
+				{
+					isLoggedIn && (
+						<>
+							<a href="/new" class="text-neutral-400 hover:text-neutral-100 transition">
+								New
+							</a>
+							<a href="/quick" class="text-neutral-400 hover:text-neutral-100 transition">
+								Quick
+							</a>
+							<button
+								id="logout"
+								class="ml-auto text-neutral-500 hover:text-neutral-100 transition"
+							>
+								Log out
+							</button>
+						</>
+					)
+				}
+			</nav>
+		</header>
+		<main class="mx-auto max-w-4xl px-4 py-8">
+			<slot />
+		</main>
+		<script>
+			document.getElementById('logout')?.addEventListener('click', async () => {
+				await fetch('/api/auth/sign-out', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: '{}',
+				});
+				window.location.href = '/login';
+			});
+		</script>
 	</body>
 </html>
-
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>
