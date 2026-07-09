@@ -17,8 +17,9 @@ pnpm-debug.log*
 .env
 .env.production
 
-# local better-auth sqlite db
+# local sqlite dbs
 auth.db
+data.db
 
 # macOS-specific files
 .DS_Store
