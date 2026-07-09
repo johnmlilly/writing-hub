@@ -7,12 +7,12 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build --remote",
+    "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "db:setup": "tsx scripts/setup-db.ts"
   },
   "dependencies": {
-    "@astrojs/db": "^0.21.3",
     "@astrojs/netlify": "^8.1.1",
     "@astrojs/react": "^6.0.1",
     "@libsql/client": "^0.17.4",
